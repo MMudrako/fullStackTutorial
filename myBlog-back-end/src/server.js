@@ -2,6 +2,8 @@ import express from 'express';
 import connectDB from '../db.cjs'
 import { ReturnDocument } from 'mongodb';
 
+import cors from 'cors';
+
 
 
 const app = express();
@@ -11,18 +13,18 @@ app.use(express.json());
 const db = await connectDB();
 
 //testing server connection
-/* app.get('/hello', function (req, res) {
+app.get('/hello', function (req, res) {
     res.send('Hello from GET endpoint!')
 });
 
-app.get('/hello/:name', function(req, res) {
+app.get('/hello/:name', function (req, res) {
     res.send('Hello, ' + req.params.name)
 })
 
-app.post('/hello', function(req, res) {
-    res.send('Hello, '+ req.body.name +' from a POST endpoint!')
+app.post('/hello', function (req, res) {
+    res.send('Hello, ' + req.body.name + ' from a POST endpoint!')
 })
- */
+
 
 //testing REST API with postman
 /* app.post('/api/articles/:name/upvote', (req, res) => {
@@ -62,9 +64,10 @@ app.get('/api/articles/:name', async (req, res) => {
 
 });
 
-app.post('/api/articles/:name/upvote', async (req, res) => {
+app.post('/api/articles/:name/upvote', cors(), async (req, res) => {
 
     const { name } = req.params;
+    const collection = db.collection('articlesInfoColtn');
     const updateArticle = await collection.findOneAndUpdate({ name }, {
         $inc: { upvotes: 1 }
     }, {
@@ -73,11 +76,11 @@ app.post('/api/articles/:name/upvote', async (req, res) => {
     res.json(updateArticle);
 });
 
-app.post('/api/articles/:name/comments', async (req, res) => {
+app.post('/api/articles/:name/comments', cors(), async (req, res) => {
     const { name } = req.params;
     const { postedBy, text } = req.body;
     const newComment = { postedBy, text };
-
+    const collection = db.collection('articlesInfoColtn');
     const updateArticle = await collection.findOneAndUpdate({ name }, {
         $push: { comments: newComment }
     }, {

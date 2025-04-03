@@ -3,7 +3,7 @@ const { MongoClient } = require('mongodb');
 require('dotenv').config();
 
 const uri = process.env.DATABASE_URL;
-console.log('MongoDB Connection String:', uri); // To verify it’s loaded correctly
+console.log('MongoDB Connected'); // To verify it’s loaded correctly
 
 const client = new MongoClient(uri);
 
