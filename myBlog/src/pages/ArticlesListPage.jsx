@@ -1,6 +1,6 @@
 
 import ArticlesList from '../components/ArticlesList'
-import articles from './article-content';
+import articles from '../article-content';
 
 export default function ArticlesListPage() {
 
