@@ -2,7 +2,7 @@ import express from 'express';
 import connectDB from '../db.cjs'
 import { ReturnDocument } from 'mongodb';
 
-import cors from 'cors';
+//import cors from 'cors';
 
 
 
@@ -56,7 +56,10 @@ app.get('/api/articles/:name', async (req, res) => {
 
         const { name } = req.params;
         const collection = db.collection('articlesInfoColtn');
-        const article = await collection.findOne({ name })
+        const article = await collection.findOne({ name });
+
+        // Set Cache-Control header
+        res.setHeader('Cache-Control', 'no-store');
         res.status(200).json(article);
     } catch (error) {
         res.status(500).json({ error: 'Failed to fetch article' })
@@ -64,7 +67,7 @@ app.get('/api/articles/:name', async (req, res) => {
 
 });
 
-app.post('/api/articles/:name/upvote', cors(), async (req, res) => {
+app.post('/api/articles/:name/upvote', async (req, res) => {
 
     const { name } = req.params;
     const collection = db.collection('articlesInfoColtn');
@@ -76,7 +79,7 @@ app.post('/api/articles/:name/upvote', cors(), async (req, res) => {
     res.json(updateArticle);
 });
 
-app.post('/api/articles/:name/comments', cors(), async (req, res) => {
+app.post('/api/articles/:name/comments', async (req, res) => {
     const { name } = req.params;
     const { postedBy, text } = req.body;
     const newComment = { postedBy, text };
