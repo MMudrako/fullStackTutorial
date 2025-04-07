@@ -5,7 +5,9 @@ import HomePage from './pages/HomePage'
 import AboutPage from './pages/AboutPage'
 import ArticlesListPage from './pages/ArticlesListPage'
 import ArticlePage, { loader as articleLoader } from './pages/ArticlePage'
-import NotFoundPage from './pages/NotFoundPage'
+import NotFoundPage from './pages/NotFoundPage';
+import LoginPage from './pages/LoginPage';
+import CreateAccount from './pages/CreateAccount';
 
 const routes = [{
   path: '/',
@@ -25,6 +27,12 @@ const routes = [{
     element: <ArticlePage />,
     loader: articleLoader,
 
+  }, {
+    path: '/login',
+    element: <LoginPage />
+  }, {
+    path: '/create-account',
+    element: <CreateAccount />
   }]
 }]
 
