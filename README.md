@@ -1,15 +1,18 @@
+Full-Stack Tutorial Enhancements
+This project is an enhancement to the original full-stack tutorial that incorporates the following additions:
 
-#full-stack react
-following LinkedIN learn tutorials (old and updated 2024). The new repo - https://github.com/LinkedInLearning/react-creating-and-hosting-a-full-stack-site-5948186.git
-didn't fork, wanted to start from scratch
+Features
+1.UI Improvements: Added new UI elements for improved user experience, including buttons for easier login access.
 
-first created repo for front-end then overwritten with back-end folders 
+2.Deployment with Render.com (instead of Google Cloud Platform):
 
-# React + Vite
+3.Simplified environment management by storing Firebase credentials securely in environment variables.
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Technologies Used
+Backend: Node.js, Express, Firebase Admin SDK
 
-Currently, two official plugins are available:
+Frontend: React (with Vite for faster build times)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Database: MongoDB Atlas
+
+
