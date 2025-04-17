@@ -23,5 +23,5 @@ yarn-error.log*
 #auth credentials
 myBlog-back-end/fullstacktutorial-695cc-cred.json
 
-myBlog-back-end/prod-env.yaml
-prod-env.yaml
+myBlog-back-end/prod.env.yaml
+prod.env.yaml
