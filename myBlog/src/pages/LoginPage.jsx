@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
-
+import validator from 'validator';
 
 
 
@@ -12,6 +12,10 @@ export default function LoginPage() {
 
     const navigate = useNavigate();
     async function logIn() {
+        if (!validator.isEmail(email)) {
+            setError("Invalid email.");
+            return;
+        }
         try {
             await signInWithEmailAndPassword(getAuth(), email, password);
             navigate('/articles')

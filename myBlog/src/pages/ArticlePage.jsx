@@ -18,7 +18,7 @@ export default function ArticlePage() {
     const [upVotes, setUpvotes] = useState(initialUpvoteIds.length);
     const [comments, setComments] = useState(initialComments);
     const [message, setMessage] = useState('');
-
+    const [errorMessage, setErrorMessage] = useState([]);
     const { isLoading, user } = useUser();
 
     const navigate = useNavigate();
@@ -48,14 +48,24 @@ export default function ArticlePage() {
     }
 
     async function onAddComment({ nameText, commentText }) {
-        const token = user && await user.getIdToken();
-        const headers = token ? { authtoken: token } : {};
-        const response = await axios.post(`/api/articles/${name}/comments`, {
-            postedBy: nameText,
-            text: commentText,
-        }, { headers });
-        const updatedArticleData = response.data;
-        setComments(updatedArticleData.comments);
+        try {
+            const token = user && await user.getIdToken();
+            const headers = token ? { authtoken: token } : {};
+            const response = await axios.post(`/api/articles/${name}/comments`, {
+                postedBy: nameText,
+                text: commentText,
+            }, { headers });
+            const updatedArticleData = response.data;
+            setComments(updatedArticleData.comments);
+            setErrorMessage([]);
+        } catch (err) {
+            if (err.response && err.response.status === 400 && err.response.data.errors) {
+                setErrorMessage(err.response.data.errors.map(e => e.msg));
+            } else {
+                setErrorMessage(['Something went wrong. Try again later.']);
+            }
+        }
+
     }
 
     if (!article) {
@@ -73,6 +83,15 @@ export default function ArticlePage() {
             {article.content.map((paragraph, i) => (
                 <p key={i}>{paragraph}</p>
             ))}
+            {errorMessage.length > 0 && (
+                <div className="error-messages">
+                    <ul>
+                        {errorMessage.map((msg, idx) => (
+                            <li key={idx} style={{ color: 'red' }}>{msg}</li>
+                        ))}
+                    </ul>
+                </div>
+            )}
             {user
                 ? <AddCommentForm onAddComment={onAddComment} />
                 : <button onClick={() => navigate('/login')}>Log in to add a comment</button>

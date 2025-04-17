@@ -1,11 +1,15 @@
 
-const { MongoClient } = require('mongodb');
+const { MongoClient, ServerApiVersion } = require('mongodb');
 require('dotenv').config();
 
 const uri = process.env.DATABASE_URL;
 console.log('MongoDB Connected'); // To verify it’s loaded correctly
 
-const client = new MongoClient(uri);
+const client = new MongoClient(uri, {
+    tls: true,
+    serverApi: { version: ServerApiVersion.v1, strict: true, deprecationErrors: true }
+});
+
 
 
 async function connectDB() {

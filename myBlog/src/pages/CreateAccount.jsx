@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
-
+import validator from 'validator';
 
 
 
@@ -13,6 +13,12 @@ export default function CreateAccpunt() {
 
     const navigate = useNavigate();
     async function createAccount() {
+
+        // Check if email is valid
+        if (!validator.isEmail(email)) {
+            setError("Invalid email.");
+            return;
+        }
         if (password !== confirmPassword) {
             setError('Password and Confirmed password do not match')
             return;
@@ -27,8 +33,6 @@ export default function CreateAccpunt() {
     }
     return (
         <>
-            <h1>Create An Account</h1>
-            <h1>Create An Account</h1>
             <h1>Create An Account</h1>
             {error && <p>{error}</p>}
             <input

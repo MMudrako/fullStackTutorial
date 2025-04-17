@@ -3,17 +3,23 @@ import connectDB from '../db.cjs'
 import { ReturnDocument } from 'mongodb';
 import admin from 'firebase-admin';
 import fs from 'fs';
+import path from 'path';
+
+import { fileURLToPath } from 'url';
+const _filename = fileURLToPath(import.meta.url);
+const _dirname = path.dirname(_filename);
+
+import dotenv from 'dotenv';
+dotenv.config();
+
+import { body, validationResult } from 'express-validator';
 
 //import cors from 'cors';
 
 
-const credentials = JSON.parse(
-    fs.readFileSync('./fullstacktutorial-695cc-cred.json')
-);
+const credentials = JSON.parse(process.env.FIREBASE_ADMIN_CREDENTIALS);
+admin.initializeApp({ credential: admin.credential.cert(credentials) });
 
-admin.initializeApp({
-    credential: admin.credential.cert(credentials)
-});
 
 
 const app = express();
@@ -21,6 +27,8 @@ const app = express();
 app.use(express.json());
 
 const db = await connectDB();
+
+app.use(express.static(path.join(_dirname, '../dist')));
 
 //testing server connection
 app.get('/hello', function (req, res) {
@@ -60,6 +68,10 @@ app.post('/api/articles/:name/comments', (req, res) => {
 
 }) */
 
+app.get(/^(?!\/api).+/, (req, res) => {
+    res.sendFile(path.join(_dirname, '../dist/index.html'))
+})
+
 //connecting endpoints with database
 app.get('/api/articles/:name', async (req, res) => {
     try {
@@ -95,51 +107,72 @@ app.use(async function (req, res, next) {
 
 
 
-app.post('/api/articles/:name/upvote', async (req, res) => {
-
-    const { name } = req.params;
-    const { uid } = req.user;
-
-    //upvoteIds: [userId, userId, ]
+app.post(
+    '/api/articles/:name/upvote',
 
 
+    async (req, res) => {
 
-    const collection = db.collection('articlesInfoColtn');
-    const article = await collection.findOne({ name });
+        const { name } = req.params;
+        const { uid } = req.user;
 
-    const upvoteIds = article.upvoteIds || [];// how does it gets the upvoteIds? upvotes are number type parameter in the database, but uid is the result of firebase authorization logic?
-    const canUpvote = uid && !upvoteIds.includes(uid);
+        //upvoteIds: [userId, userId, ]
 
-    if (canUpvote) {
+
+
+        const collection = db.collection('articlesInfoColtn');
+        const article = await collection.findOne({ name });
+
+        const upvoteIds = article.upvoteIds || [];// how does it gets the upvoteIds? upvotes are number type parameter in the database, but uid is the result of firebase authorization logic?
+        const canUpvote = uid && !upvoteIds.includes(uid);
+
+        if (canUpvote) {
+            const updateArticle = await collection.findOneAndUpdate({ name }, {
+                $push: { upvoteIds: uid },
+            }, {
+                ReturnDocument: "after"
+            });
+            res.json(updateArticle);
+        } else {
+            res.sendStatus(403);//not authorized to do what they are trying to do
+
+        }
+
+    });
+
+const commentValidators = [
+    body('postedBy').trim().escape().notEmpty().withMessage('Name required'),
+    body('text').trim().escape().isLength({ min: 5 }).withMessage('Comment must be at least 5 characters'),
+];
+
+app.post(
+    '/api/articles/:name/comments',
+    commentValidators,
+    async (req, res) => {
+        const errors = validationResult(req);
+
+        if (!errors.isEmpty()) {
+            // If there are validation errors, return them
+            return res.status(400).json({ errors: errors.array() });
+        }
+
+        const { name } = req.params;
+
+
+        const { postedBy, text } = req.body;
+        const newComment = { postedBy, text };
+        const collection = db.collection('articlesInfoColtn');
         const updateArticle = await collection.findOneAndUpdate({ name }, {
-            $push: { upvoteIds: uid },
+            $push: { comments: newComment }
         }, {
-            ReturnDocument: "after"
+            ReturnDocument: 'after',
         });
         res.json(updateArticle);
-    } else {
-        res.sendStatus(403);//not authorized to do what they are trying to do
-
-    }
-
-});
-
-app.post('/api/articles/:name/comments', async (req, res) => {
-    const { name } = req.params;
-
-
-    const { postedBy, text } = req.body;
-    const newComment = { postedBy, text };
-    const collection = db.collection('articlesInfoColtn');
-    const updateArticle = await collection.findOneAndUpdate({ name }, {
-        $push: { comments: newComment }
-    }, {
-        ReturnDocument: 'after',
-    });
-    res.json(updateArticle);
-})
+    })
 
 //start the server
-app.listen(8000, function () {
-    console.log(`server is listening at http://localhost:8000`)
+
+const PORT = process.env.PORT || 8000;
+app.listen(PORT, function () {
+    console.log(`server is listening at http://localhost:${PORT}`)
 })
